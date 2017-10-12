@@ -1,0 +1,186 @@
+import java.io.*; //import java.io.DataInputStream;import java.io.DataOutputStream;import java.io.IOException;
+import java.net.*;//import java.net.ServerSocket;import java.net.Socket;
+import javax.net.*;//import javax.net.ServerSocketFactory;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+
+public class ServerMain {
+    // Declare the port number
+    private static final int PORT = 3939;
+    //Unnecessary for Server :private static final String IP = "localhost";
+    //Counter for connected Client
+    private static int counter = 0;
+    //Dictionary file name and path
+    private static String fileName = "Dictionary.txt";
+
+    public static void main (String args[]) {
+        bootSequence();
+
+        //Assign new Socket if current Socket was not available
+        ServerSocketFactory factory = ServerSocketFactory.getDefault();
+        //try(Model)will close model object when program is closed ,instead of using object .close()
+        try (ServerSocket server = factory.createServerSocket(PORT)) {
+            System.out.println("Waiting for Clients Connection Requests...");
+            // Wait for connections.
+            while (true) {
+                Socket client = server.accept();
+                counter++;
+                System.out.println("Client " + counter + ": Applying for connect!");
+
+                // Start a new thread for a connection
+                Thread t = new Thread(() -> serverClient(client));
+                t.start();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private static void serverClient(Socket client) {
+        try (Socket clientSocket = client) {
+            // Data Input Stream
+            DataInputStream input = new DataInputStream(clientSocket.getInputStream());
+            // Data Output Stream
+            DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
+            System.out.println("CLIENT: " + input.readUTF());
+            output.writeUTF("Server: Client-" + counter + " are Connected !");
+
+            File dictionary = new File(fileName);
+            if (!dictionary.exists()) {
+                dictionary.createNewFile();
+            }
+
+            String textField = input.readUTF();// read from client textField
+
+            /*
+            System.out.println("Enter:");
+
+            Scanner cmdInput = new Scanner(System.in);
+
+            String textField = cmdInput.next();
+
+            String[] post = textField.split(",");
+            String command = post[0];//按钮发送自身命令append with textfield" Search, Dream after space is the def"
+            String[] text = post[1].split(" ");
+            String word = text[0];
+
+
+
+            //判断按钮动作，TBD
+            if (command.equalsIgnoreCase("Search")) {
+
+                BufferedReader br = new BufferedReader(new FileReader(fileName));
+                String line = null;
+                StringBuffer sb = new StringBuffer();
+                boolean isFound = false;
+
+                while ((line = br.readLine()) != null) {
+                    Scanner in = new Scanner(line);
+
+                    if (in.next().equals(word)) {
+                        int offset = word.length();
+                        output.writeUTF("\n\n\n\n" + line.substring(offset));
+                        isFound = true;
+                        break;
+                    }
+                }
+
+                if (!isFound) {
+                    output.writeUTF("No such word found!\nPlease double check your input or Add a new word.");
+                }
+            }
+            if (command.equalsIgnoreCase("Add")) {
+
+                //addWords();
+            }
+            if (command.equalsIgnoreCase("Remove")) {
+                //removeWords();
+            }
+            */
+
+
+        } catch (UnknownHostException e) {
+            System.out.println("ERROR: UnknownHost");
+            e.printStackTrace();
+        } catch (SocketTimeoutException e) {
+            System.out.println("ERROR: Timeout");
+            e.printStackTrace();
+        } catch (ConnectException e) {
+            System.out.println("ERROR: Connection Refused");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("ERROR: Could not load dictionary file");
+            e.printStackTrace();
+        }
+    }
+
+    private static void bootSequence(){
+        try {
+            System.out.println("Starting up: COMP90015 Distributed System Server, Please wait...");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println();
+            System.out.println("Memory for crash kernel (0x0 to 0x0) not within permissible range" +
+                    "\nRed Hat nash version 7.8.7 starting");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("Welcome to Red Hat Enterprise Linux Server");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("Setting clock: "+
+                    new SimpleDateFormat("MMMM d, yyyy HH:MM:SS").format(new java.util.Date()));
+            System.out.println("Starting udev:");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("Loading default keymap (US)");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("Setting up Logical Volume Management:");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("Checking filesystems");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("[OK]");
+            System.out.println("Mounting local filesystems");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("[OK]");
+            System.out.println("Setting default network configurations");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("[OK]");
+            System.out.println("System boot SUCCESSFUL, Starting communication...");
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+}
+
+
+
+
+
+/*
+ public String readFile(String fileName) throws IOException {
+
+        BufferedReader br = new BufferedReader(new FileReader(dictionary));
+        String temp = null;
+        StringBuffer sb = new StringBuffer();
+
+
+        while ((temp = br.readLine())!=null) {
+            sb.append(temp + " ");
+            String[] fileReader = temp.split(",");
+            String word = fileReader[0];
+
+            if(id.equalsIgnoreCase(word)){
+
+
+            }else if{
+               //send message ("No item founded, please double check your input");
+            }
+
+        }
+        br.close();
+        return sb.toString();
+
+    }
+ */
